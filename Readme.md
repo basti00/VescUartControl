@@ -1,10 +1,7 @@
-********************************************************************************************************************
+Trying to implement function for reading and setting mconfig and later maybe appconfig too. So one can for example adjust the speedlimit or powerlimit without the need of an laptop or smartphone. 
+Won't be able to run on Atmega32p (Arduino Nano / Uno). 
 
-#THE PROJECT  ID DISCONTINUED. I'M SORRY.
-
-If you send me a pull request where you also confirm, that it is well tested, than I will merge it to this project.
-
-**********************************************************************************************************************
+I am 
 
 #VescUartControl library
 
@@ -26,7 +23,7 @@ All available UART handlers the VESC can deal with can be found in the file comm
 in the function commands_process_packet. You can write easily own handler functions. Use converting functions in 
 the library buffer.c.
 
-The rest shut be comment sufficient in the VescUart.h. Take also a look to the RX-Site of the ArduBoardControler (https://github.com/RollingGecko/ArduBoardControler)
+The rest should be comment sufficient in the VescUart.h. Take also a look to the RX-Site of the ArduBoardControler (https://github.com/RollingGecko/ArduBoardControler)
 
 ##Requirements to use this library on bldc FW
 
