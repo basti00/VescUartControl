@@ -51,8 +51,6 @@ enum REC_State
   REC_IDLE = 0,
   REC_LEN,
   REC_PAYLOAD,
-  REC_3,
-  REC_4
 };
 
 //HardwareSerial *serial; ///@param num as integer with the serial port in use (0=Serial; 1=Serial1; 2=Serial2; 3=Serial3;)
@@ -158,8 +156,6 @@ uint16_t ReceiveUartMessageMC(uint8_t* payloadReceived, int num) {
     debugSerialPort->print(i);debugSerialPort->print(": "); debugSerialPort->println(String(messageReceived[i]));
   }*/
   
-  
-  
   bool unpacked = false;
   if (fertig) 
   {
@@ -174,7 +170,7 @@ uint16_t ReceiveUartMessageMC(uint8_t* payloadReceived, int num) {
     return 0; //No Message Read
   }
 }
-
+/* 
 uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num) {
 
   //Messages <= 255 start with 2. 2nd byte is length
@@ -182,10 +178,10 @@ uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num) {
 
   int counter = 0;
   //uint16_t endMessage = 256;
-  uint16_t endMessage = 300;
+  uint16_t endMessage = 256;
   bool messageRead = false;
   //uint8_t messageReceived[256];
-  uint8_t messageReceived[300];
+  uint8_t messageReceived[256];
   uint16_t lenPayload = 0;
   HardwareSerial* serial;
   
@@ -273,7 +269,7 @@ uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num) {
     debugSerialPort->println("return 0");
     return 0; //No Message Read
   }
-}
+} */
 
 bool UnpackPayload(uint8_t* message, int lenMes, uint8_t* payload, int lenPay) {
   uint16_t crcMessage = 0;
@@ -386,6 +382,8 @@ if(debugSerialPort!=NULL){
 }
 
 
+
+
 bool ProcessReadPacket(uint8_t* message, struct bldcMeasure& values, int len) {
   COMM_PACKET_ID packetId;
   int32_t ind = 0;
@@ -416,33 +414,118 @@ bool ProcessReadPacket(uint8_t* message, struct bldcMeasure& values, int len) {
     values.faultCode          = message[ind];
     return true;
     break;
-  case COMM_GET_MCCONF:
-    values.tempFetFiltered    = buffer_get_float16(message, 1e1, &ind);
-    values.tempMotorFiltered  = buffer_get_float16(message, 1e1, &ind);
-    values.avgMotorCurrent    = buffer_get_float32(message, 100.0, &ind);
-    values.avgInputCurrent    = buffer_get_float32(message, 100.0, &ind);
-    values.avgId              = buffer_get_float32(message, 1e2, &ind);
-    values.avgIq              = buffer_get_float32(message, 1e2, &ind);
-    values.dutyNow            = buffer_get_float16(message, 1000.0, &ind);
-    values.rpm                = buffer_get_float32(message, 1.0, &ind);
-    values.inpVoltage         = buffer_get_float16(message, 10.0, &ind);
-    values.ampHours           = buffer_get_float32(message, 10000.0, &ind);
-    values.ampHoursCharged    = buffer_get_float32(message, 10000.0, &ind);
-    values.wattHours          = buffer_get_float32(message, 1e4, &ind);
-    values.watthoursCharged   = buffer_get_float32(message, 1e4, &ind);
-    values.tachometer         = buffer_get_int32(message, &ind);
-    values.tachometerAbs      = buffer_get_int32(message, &ind);
-    values.faultCode          = message[ind];
+  default:
+    return false;
+    break;
+  }
+}
+
+/* bool ProcessReadPacketMC(uint8_t* data, mc_configuration& mcconf, int len) {
+  COMM_PACKET_ID packetId;
+  int32_t ind = 0;
+
+  packetId = (COMM_PACKET_ID)data[0];
+  data++;//Eliminates the message id
+  len--;
+
+  switch (packetId)
+  {
+
+  case COMM_GET_VALUES:
+    ind = 0;
+		mcconf.pwm_mode = (mc_pwm_mode)data[ind++];
+		mcconf.comm_mode = (mc_comm_mode)data[ind++];
+		mcconf.motor_type = (mc_motor_type)data[ind++];
+		mcconf.sensor_mode = (mc_sensor_mode)data[ind++];
+
+		mcconf.l_current_max = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_current_min = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_in_current_max = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_in_current_min = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_abs_current_max = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_min_erpm = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_max_erpm = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_max_erpm_fbrake = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_max_erpm_fbrake_cc = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_min_vin = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_max_vin = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_battery_cut_start = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_battery_cut_end = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_slow_abs_current = data[ind++];
+		//                             mcconf.l_rpm_lim_neg_torque = data[ind++];
+		mcconf.l_temp_fet_start = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_temp_fet_end = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_temp_motor_start = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_temp_motor_end = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_min_duty = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.l_max_duty = buffer_get_float32(data, 1000000.0, &ind);
+
+		mcconf.sl_min_erpm = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.sl_min_erpm_cycle_int_limit = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.sl_max_fullbreak_current_dir_change = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.sl_cycle_int_limit = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.sl_phase_advance_at_br = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.sl_cycle_int_rpm_br = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.sl_bemf_coupling_k = buffer_get_float32(data, 1000.0, &ind);
+
+		memcpy(mcconf.hall_table, data + ind, 8);
+		ind += 8;
+		mcconf.hall_sl_erpm = buffer_get_float32(data, 1000.0, &ind);
+
+		mcconf.foc_current_kp = buffer_get_float32(data, 1e5, &ind);
+		mcconf.foc_current_ki = buffer_get_float32(data, 1e5, &ind);
+		mcconf.foc_f_sw = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_dt_us = buffer_get_float32(data, 1e6, &ind);
+		mcconf.foc_encoder_inverted = data[ind++];
+		mcconf.foc_encoder_offset = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_encoder_ratio = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_sensor_mode = (mc_foc_sensor_mode)data[ind++];
+		mcconf.foc_pll_kp = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_pll_ki = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_motor_l = buffer_get_float32(data, 1e8, &ind);
+		mcconf.foc_motor_r = buffer_get_float32(data, 1e5, &ind);
+		mcconf.foc_motor_flux_linkage = buffer_get_float32(data, 1e5, &ind);
+		mcconf.foc_observer_gain = buffer_get_float32(data, 1e0, &ind);
+		mcconf.foc_duty_dowmramp_kp = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_duty_dowmramp_ki = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_openloop_rpm = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_sl_openloop_hyst = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_sl_openloop_time = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_sl_d_current_duty = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_sl_d_current_factor = buffer_get_float32(data, 1e3, &ind);
+		memcpy(mcconf.foc_hall_table, data + ind, 8);
+		ind += 8;
+		//                                         mcconf.foc_hall_sl_erpm = buffer_get_float32(data, 1000.0, &ind);
+
+		mcconf.s_pid_kp = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.s_pid_ki = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.s_pid_kd = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.s_pid_min_erpm = buffer_get_float32(data, 1000.0, &ind);
+
+		mcconf.p_pid_kp = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.p_pid_ki = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.p_pid_kd = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.p_pid_ang_div = buffer_get_float32(data, 1e5, &ind);
+
+		mcconf.cc_startup_boost_duty = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.cc_min_current = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.cc_gain = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.cc_ramp_step_max = buffer_get_float32(data, 1000000.0, &ind);
+
+		mcconf.m_fault_stop_time_ms = buffer_get_int32(data, &ind);
+		mcconf.m_duty_ramp_step = buffer_get_float32(data, 1000000.0, &ind);
+		//  mcconf.m_duty_ramp_step_rpm_lim = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.m_current_backoff_gain = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.m_encoder_counts = buffer_get_uint32(data, &ind);
     return true;
     break;
   default:
     return false;
     break;
   }
+} */
 
-}
-
-bool VescUartGetValue(bldcMeasure& values, int num) {
+/* bool VescUartGetValue(bldcMeasure& values, int num) {
   uint8_t command[1] = { COMM_GET_VALUES };
   uint8_t payload[256];
   PackSendPayload(command, 1, num);
@@ -459,14 +542,14 @@ bool VescUartGetValue(bldcMeasure& values, int num) {
 }
 bool VescUartGetValue(bldcMeasure& values) {
   return VescUartGetValue(values, 0);
-}
+} */
 
 bool VescUartGetMC(bldcMeasure& values, int num) {
   uint8_t command[1] = { COMM_GET_MCCONF };  //COMM_GET_MCCONF  COMM_GET_VALUES
-  uint8_t payload[400];
+  uint8_t payload[350];
   PackSendPayload(command, 1, num);
   //delay(10); //needed, otherwise data is not read
-  int lenPayload = ReceiveUartMessageMC(payload, num);
+  int lenPayload = ReceiveUartMessageMC(payload, num);/* MC */
   if (lenPayload > 1) {
     bool read = ProcessReadPacket(payload, values, lenPayload); //returns true if sucessful
     return read;
@@ -599,6 +682,22 @@ void SerialPrint(const struct bldcMeasure& values) {
   debugSerialPort->print("tachometer:    "); debugSerialPort->println(values.tachometer);
   debugSerialPort->print("tachometerAbs:  "); debugSerialPort->println(values.tachometerAbs);
   debugSerialPort->print("faultCode:    "); debugSerialPort->println(values.faultCode);
-
-  
 }
+
+
+/* void SerialPrint(const mc_configuration& config) {
+  debugSerialPort->print("l_current_max:  "); debugSerialPort->println(config.l_current_max);
+  debugSerialPort->print("l_current_min:"); debugSerialPort->println(config.l_current_min);
+  debugSerialPort->print("l_in_current_max:  "); debugSerialPort->println(config.l_in_current_max);
+  debugSerialPort->print("l_in_current_min:  "); debugSerialPort->println(config.l_in_current_min);
+  debugSerialPort->print("l_min_erpm:      "); debugSerialPort->println(config.l_min_erpm);
+  debugSerialPort->print("l_max_erpm:      "); debugSerialPort->println(config.l_max_erpm);
+  debugSerialPort->print("l_max_erpm_fbrake:      "); debugSerialPort->println(config.l_max_erpm_fbrake);
+  debugSerialPort->print("l_max_erpm_fbrake_cc:        "); debugSerialPort->println(config.l_max_erpm_fbrake_cc);
+  debugSerialPort->print("l_min_vin:    "); debugSerialPort->println(config.l_min_vin);
+  debugSerialPort->print("l_max_vin:    "); debugSerialPort->println(config.l_max_vin);
+  debugSerialPort->print("sl_min_erpm:  "); debugSerialPort->println(config.sl_min_erpm);
+  debugSerialPort->print("sl_min_erpm_cycle_int_limit:    "); debugSerialPort->println(config.sl_min_erpm_cycle_int_limit);
+  //debugSerialPort->print("tachometerAbs:  "); debugSerialPort->println(config.tachometerAbs);
+  //debugSerialPort->print("faultCode:    "); debugSerialPort->println(config.faultCode);
+} */

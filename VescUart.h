@@ -83,21 +83,23 @@ void SetDebugSerialPort(HardwareSerial* _debugSerialPort);
 ///@return the number of bytes send
 
 int PackSendPayload(uint8_t* payload, int lenPay, int num);
-int ProcessReadPacketMC(uint8_t* payload, int lenPay, int num);
+int ProcessReadPacket(uint8_t* payload, int lenPay, int num);
+//int ProcessReadPacketMC(uint8_t* payload, int lenPay, int num);
 
 ///ReceiveUartMessage receives the a message over Serial
 ///Define in a Config.h a SERIAL with the Serial in Arduino Style you want to you
 ///@parm the payload as the payload [unit8_t Array]
 ///@return the number of bytes receeived within the payload
 
-uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num);
+//uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num);
 uint16_t ReceiveUartMessageMC(uint8_t* payloadReceived, int num);
 
 ///Help Function to print struct bldcMeasure over Serial for Debug
 ///#define DEBUG necessary
-///Define in a Config.h the DEBUGSERIAL you want to use
+///Define in a Config.h the DEBUGSERIAL you want to use 
 
 void SerialPrint(const struct bldcMeasure& values);
+//void SerialPrint(const mc_configuration& config);
 
 ///Help Function to print uint8_t array over Serial for Debug
 ///Define in a Config.h the DEBUGSERIAL you want to use
