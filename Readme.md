@@ -1,7 +1,6 @@
-Trying to implement function for reading and setting mconfig and later maybe appconfig too. So one can for example adjust the speedlimit or powerlimit without the need of an laptop or smartphone. 
+Trying to implement functions for reading and setting mconfig and later maybe appconfig too. So one can for example adjust the speedlimit or powerlimit without the need of an laptop or smartphone. 
 Won't be able to run on Atmega32p (Arduino Nano / Uno). 
 
-I am 
 
 #VescUartControl library
 
