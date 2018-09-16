@@ -170,7 +170,7 @@ uint16_t ReceiveUartMessageMC(uint8_t* payloadReceived, int num) {
     return 0; //No Message Read
   }
 }
-/* 
+
 uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num) {
 
   //Messages <= 255 start with 2. 2nd byte is length
@@ -269,9 +269,10 @@ uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num) {
     debugSerialPort->println("return 0");
     return 0; //No Message Read
   }
-} */
+} 
 
-bool UnpackPayload(uint8_t* message, int lenMes, uint8_t* payload, int lenPay) {
+bool UnpackPayload(uint8_t* message, int lenMes, uint8_t* payload, int lenPay)  //FOR ALL MSG
+{
   uint16_t crcMessage = 0;
   uint16_t crcPayload = 0;
   //Rebuild src:
@@ -286,13 +287,11 @@ bool UnpackPayload(uint8_t* message, int lenMes, uint8_t* payload, int lenPay) {
   //Extract payload:
   if(message[0] == 2)
   {
-    debugSerialPort->println("if 2");
     lenPayload = message[1];
     memcpy(payload, &message[2], lenPayload);
   }
   else if(message[0] == 3)
   {
-    debugSerialPort->println("if 3");
     lenPayload = message[1] << 8 | message[2];
     
     memcpy(payload, &message[3], lenPayload);
@@ -420,7 +419,7 @@ bool ProcessReadPacket(uint8_t* message, struct bldcMeasure& values, int len) {
   }
 }
 
-/* bool ProcessReadPacketMC(uint8_t* data, mc_configuration& mcconf, int len) {
+bool ProcessReadPacketMC(uint8_t* data, mc_configuration& mcconf, int len) {
   COMM_PACKET_ID packetId;
   int32_t ind = 0;
 
@@ -431,101 +430,130 @@ bool ProcessReadPacket(uint8_t* message, struct bldcMeasure& values, int len) {
   switch (packetId)
   {
 
-  case COMM_GET_VALUES:
+  case COMM_GET_MCCONF:
     ind = 0;
 		mcconf.pwm_mode = (mc_pwm_mode)data[ind++];
 		mcconf.comm_mode = (mc_comm_mode)data[ind++];
 		mcconf.motor_type = (mc_motor_type)data[ind++];
 		mcconf.sensor_mode = (mc_sensor_mode)data[ind++];
 
-		mcconf.l_current_max = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_current_min = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_in_current_max = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_in_current_min = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_abs_current_max = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_min_erpm = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_max_erpm = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_max_erpm_fbrake = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_max_erpm_fbrake_cc = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_min_vin = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_max_vin = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_battery_cut_start = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_battery_cut_end = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.l_current_max = buffer_get_float32_auto(data, &ind);
+		mcconf.l_current_min = buffer_get_float32_auto(data, &ind);
+		mcconf.l_in_current_max = buffer_get_float32_auto(data, &ind);
+		mcconf.l_in_current_min = buffer_get_float32_auto(data, &ind);
+		mcconf.l_abs_current_max = buffer_get_float32_auto(data, &ind);
+		mcconf.l_min_erpm = buffer_get_float32_auto(data, &ind);
+		mcconf.l_max_erpm = buffer_get_float32_auto(data, &ind);
+		mcconf.l_erpm_start = buffer_get_float32_auto(data, &ind);
+		mcconf.l_max_erpm_fbrake = buffer_get_float32_auto(data, &ind);
+		mcconf.l_max_erpm_fbrake_cc = buffer_get_float32_auto(data, &ind);
+		mcconf.l_min_vin = buffer_get_float32_auto(data, &ind);
+		mcconf.l_max_vin = buffer_get_float32_auto(data, &ind);
+		mcconf.l_battery_cut_start = buffer_get_float32_auto(data, &ind);
+		mcconf.l_battery_cut_end = buffer_get_float32_auto(data, &ind);
 		mcconf.l_slow_abs_current = data[ind++];
-		//                             mcconf.l_rpm_lim_neg_torque = data[ind++];
-		mcconf.l_temp_fet_start = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_temp_fet_end = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_temp_motor_start = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_temp_motor_end = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.l_min_duty = buffer_get_float32(data, 1000000.0, &ind);
-		mcconf.l_max_duty = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.l_temp_fet_start = buffer_get_float32_auto(data, &ind);
+		mcconf.l_temp_fet_end = buffer_get_float32_auto(data, &ind);
+		mcconf.l_temp_motor_start = buffer_get_float32_auto(data, &ind);
+		mcconf.l_temp_motor_end = buffer_get_float32_auto(data, &ind);
+		mcconf.l_temp_accel_dec = buffer_get_float32_auto(data, &ind);
+		mcconf.l_min_duty = buffer_get_float32_auto(data, &ind);
+		mcconf.l_max_duty = buffer_get_float32_auto(data, &ind);
+		mcconf.l_watt_max = buffer_get_float32_auto(data, &ind);
+		mcconf.l_watt_min = buffer_get_float32_auto(data, &ind);
 
-		mcconf.sl_min_erpm = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.sl_min_erpm_cycle_int_limit = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.sl_max_fullbreak_current_dir_change = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.sl_cycle_int_limit = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.sl_phase_advance_at_br = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.sl_cycle_int_rpm_br = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.sl_bemf_coupling_k = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.lo_current_max = mcconf.l_current_max;
+		mcconf.lo_current_min = mcconf.l_current_min;
+		mcconf.lo_in_current_max = mcconf.l_in_current_max;
+		mcconf.lo_in_current_min = mcconf.l_in_current_min;
+		mcconf.lo_current_motor_max_now = mcconf.l_current_max;
+		mcconf.lo_current_motor_min_now = mcconf.l_current_min;
+
+		mcconf.sl_min_erpm = buffer_get_float32_auto(data, &ind);
+		mcconf.sl_min_erpm_cycle_int_limit = buffer_get_float32_auto(data, &ind);
+		mcconf.sl_max_fullbreak_current_dir_change = buffer_get_float32_auto(data, &ind);
+		mcconf.sl_cycle_int_limit = buffer_get_float32_auto(data, &ind);
+		mcconf.sl_phase_advance_at_br = buffer_get_float32_auto(data, &ind);
+		mcconf.sl_cycle_int_rpm_br = buffer_get_float32_auto(data, &ind);
+		mcconf.sl_bemf_coupling_k = buffer_get_float32_auto(data, &ind);
 
 		memcpy(mcconf.hall_table, data + ind, 8);
 		ind += 8;
-		mcconf.hall_sl_erpm = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.hall_sl_erpm = buffer_get_float32_auto(data, &ind);
 
-		mcconf.foc_current_kp = buffer_get_float32(data, 1e5, &ind);
-		mcconf.foc_current_ki = buffer_get_float32(data, 1e5, &ind);
-		mcconf.foc_f_sw = buffer_get_float32(data, 1e3, &ind);
-		mcconf.foc_dt_us = buffer_get_float32(data, 1e6, &ind);
+		mcconf.foc_current_kp = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_current_ki = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_f_sw = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_dt_us = buffer_get_float32_auto(data, &ind);
 		mcconf.foc_encoder_inverted = data[ind++];
-		mcconf.foc_encoder_offset = buffer_get_float32(data, 1e3, &ind);
-		mcconf.foc_encoder_ratio = buffer_get_float32(data, 1e3, &ind);
-		mcconf.foc_sensor_mode = (mc_foc_sensor_mode)data[ind++];
-		mcconf.foc_pll_kp = buffer_get_float32(data, 1e3, &ind);
-		mcconf.foc_pll_ki = buffer_get_float32(data, 1e3, &ind);
-		mcconf.foc_motor_l = buffer_get_float32(data, 1e8, &ind);
-		mcconf.foc_motor_r = buffer_get_float32(data, 1e5, &ind);
-		mcconf.foc_motor_flux_linkage = buffer_get_float32(data, 1e5, &ind);
-		mcconf.foc_observer_gain = buffer_get_float32(data, 1e0, &ind);
-		mcconf.foc_duty_dowmramp_kp = buffer_get_float32(data, 1e3, &ind);
-		mcconf.foc_duty_dowmramp_ki = buffer_get_float32(data, 1e3, &ind);
-		mcconf.foc_openloop_rpm = buffer_get_float32(data, 1e3, &ind);
-		mcconf.foc_sl_openloop_hyst = buffer_get_float32(data, 1e3, &ind);
-		mcconf.foc_sl_openloop_time = buffer_get_float32(data, 1e3, &ind);
-		mcconf.foc_sl_d_current_duty = buffer_get_float32(data, 1e3, &ind);
-		mcconf.foc_sl_d_current_factor = buffer_get_float32(data, 1e3, &ind);
+		mcconf.foc_encoder_offset = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_encoder_ratio = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_sensor_mode = (mc_foc_sensor_mode) data[ind++];
+		mcconf.foc_pll_kp = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_pll_ki = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_motor_l = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_motor_r = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_motor_flux_linkage = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_observer_gain = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_observer_gain_slow = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_duty_dowmramp_kp = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_duty_dowmramp_ki = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_openloop_rpm = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_sl_openloop_hyst = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_sl_openloop_time = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_sl_d_current_duty = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_sl_d_current_factor = buffer_get_float32_auto(data, &ind);
 		memcpy(mcconf.foc_hall_table, data + ind, 8);
 		ind += 8;
-		//                                         mcconf.foc_hall_sl_erpm = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.foc_sl_erpm = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_sample_v0_v7 = data[ind++];
+		mcconf.foc_sample_high_current = data[ind++];
+		mcconf.foc_sat_comp = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_temp_comp = data[ind++];
+		mcconf.foc_temp_comp_base_temp = buffer_get_float32_auto(data, &ind);
+		mcconf.foc_current_filter_const = buffer_get_float32_auto(data, &ind);
 
-		mcconf.s_pid_kp = buffer_get_float32(data, 1000000.0, &ind);
-		mcconf.s_pid_ki = buffer_get_float32(data, 1000000.0, &ind);
-		mcconf.s_pid_kd = buffer_get_float32(data, 1000000.0, &ind);
-		mcconf.s_pid_min_erpm = buffer_get_float32(data, 1000.0, &ind);
+		mcconf.s_pid_kp = buffer_get_float32_auto(data, &ind);
+		mcconf.s_pid_ki = buffer_get_float32_auto(data, &ind);
+		mcconf.s_pid_kd = buffer_get_float32_auto(data, &ind);
+		mcconf.s_pid_kd_filter = buffer_get_float32_auto(data, &ind);
+		mcconf.s_pid_min_erpm = buffer_get_float32_auto(data, &ind);
+		mcconf.s_pid_allow_braking = data[ind++];
 
-		mcconf.p_pid_kp = buffer_get_float32(data, 1000000.0, &ind);
-		mcconf.p_pid_ki = buffer_get_float32(data, 1000000.0, &ind);
-		mcconf.p_pid_kd = buffer_get_float32(data, 1000000.0, &ind);
-		mcconf.p_pid_ang_div = buffer_get_float32(data, 1e5, &ind);
+		mcconf.p_pid_kp = buffer_get_float32_auto(data, &ind);
+		mcconf.p_pid_ki = buffer_get_float32_auto(data, &ind);
+		mcconf.p_pid_kd = buffer_get_float32_auto(data, &ind);
+		mcconf.p_pid_kd_filter = buffer_get_float32_auto(data, &ind);
+		mcconf.p_pid_ang_div = buffer_get_float32_auto(data, &ind);
 
-		mcconf.cc_startup_boost_duty = buffer_get_float32(data, 1000000.0, &ind);
-		mcconf.cc_min_current = buffer_get_float32(data, 1000.0, &ind);
-		mcconf.cc_gain = buffer_get_float32(data, 1000000.0, &ind);
-		mcconf.cc_ramp_step_max = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.cc_startup_boost_duty = buffer_get_float32_auto(data, &ind);
+		mcconf.cc_min_current = buffer_get_float32_auto(data, &ind);
+		mcconf.cc_gain = buffer_get_float32_auto(data, &ind);
+		mcconf.cc_ramp_step_max = buffer_get_float32_auto(data, &ind);
 
 		mcconf.m_fault_stop_time_ms = buffer_get_int32(data, &ind);
-		mcconf.m_duty_ramp_step = buffer_get_float32(data, 1000000.0, &ind);
-		//  mcconf.m_duty_ramp_step_rpm_lim = buffer_get_float32(data, 1000000.0, &ind);
-		mcconf.m_current_backoff_gain = buffer_get_float32(data, 1000000.0, &ind);
+		mcconf.m_duty_ramp_step = buffer_get_float32_auto(data, &ind);
+		mcconf.m_current_backoff_gain = buffer_get_float32_auto(data, &ind);
 		mcconf.m_encoder_counts = buffer_get_uint32(data, &ind);
+		mcconf.m_sensor_port_mode = (sensor_port_mode)data[ind++];
+		mcconf.m_invert_direction = data[ind++];
+		mcconf.m_drv8301_oc_mode = (drv8301_oc_mode)data[ind++];
+		mcconf.m_drv8301_oc_adj = data[ind++];
+		mcconf.m_bldc_f_sw_min = buffer_get_float32_auto(data, &ind);
+		mcconf.m_bldc_f_sw_max = buffer_get_float32_auto(data, &ind);
+		mcconf.m_dc_f_sw = buffer_get_float32_auto(data, &ind);
+		mcconf.m_ntc_motor_beta = buffer_get_float32_auto(data, &ind);
+		mcconf.m_out_aux_mode = (out_aux_mode)data[ind++];
+
     return true;
     break;
   default:
     return false;
     break;
   }
-} */
+} 
 
-/* bool VescUartGetValue(bldcMeasure& values, int num) {
+ bool VescUartGetValue(bldcMeasure& values, int num) {
   uint8_t command[1] = { COMM_GET_VALUES };
   uint8_t payload[256];
   PackSendPayload(command, 1, num);
@@ -542,16 +570,16 @@ bool ProcessReadPacket(uint8_t* message, struct bldcMeasure& values, int len) {
 }
 bool VescUartGetValue(bldcMeasure& values) {
   return VescUartGetValue(values, 0);
-} */
+} 
 
-bool VescUartGetMC(bldcMeasure& values, int num) {
+bool VescUartGetMC(mc_configuration& config, int num) {
   uint8_t command[1] = { COMM_GET_MCCONF };  //COMM_GET_MCCONF  COMM_GET_VALUES
   uint8_t payload[350];
   PackSendPayload(command, 1, num);
   //delay(10); //needed, otherwise data is not read
   int lenPayload = ReceiveUartMessageMC(payload, num);/* MC */
   if (lenPayload > 1) {
-    bool read = ProcessReadPacket(payload, values, lenPayload); //returns true if sucessful
+    bool read = ProcessReadPacketMC(payload, config, lenPayload); //returns true if sucessful
     return read;
   }
   else
@@ -559,8 +587,8 @@ bool VescUartGetMC(bldcMeasure& values, int num) {
     return false;
   }
 }
-bool VescUartGetMC(bldcMeasure& values) {
-  return VescUartGetMC(values, 0);
+bool VescUartGetMC(mc_configuration& config) {
+  return VescUartGetMC(config, 0);
 }
 
 void VescUartSetCurrent(float current, int num) {
@@ -654,7 +682,8 @@ void VescUartSetNunchukValues(remotePackage& data) {
 }
 
 
-void SerialPrint(uint8_t* data, int len) {
+void SerialPrint(uint8_t* data, int len) 
+{
 
   //  debugSerialPort->print("Data to display: "); debugSerialPort->println(sizeof(data));
 
@@ -667,7 +696,8 @@ void SerialPrint(uint8_t* data, int len) {
 }
 
 
-void SerialPrint(const struct bldcMeasure& values) {
+void SerialPrint(const struct bldcMeasure& values) 
+{
   debugSerialPort->print("tempFetFiltered:  "); debugSerialPort->println(values.tempFetFiltered);
   debugSerialPort->print("tempMotorFiltered:"); debugSerialPort->println(values.tempMotorFiltered);
   debugSerialPort->print("avgMotorCurrent:  "); debugSerialPort->println(values.avgMotorCurrent);
@@ -685,19 +715,109 @@ void SerialPrint(const struct bldcMeasure& values) {
 }
 
 
-/* void SerialPrint(const mc_configuration& config) {
-  debugSerialPort->print("l_current_max:  "); debugSerialPort->println(config.l_current_max);
-  debugSerialPort->print("l_current_min:"); debugSerialPort->println(config.l_current_min);
-  debugSerialPort->print("l_in_current_max:  "); debugSerialPort->println(config.l_in_current_max);
-  debugSerialPort->print("l_in_current_min:  "); debugSerialPort->println(config.l_in_current_min);
-  debugSerialPort->print("l_min_erpm:      "); debugSerialPort->println(config.l_min_erpm);
-  debugSerialPort->print("l_max_erpm:      "); debugSerialPort->println(config.l_max_erpm);
-  debugSerialPort->print("l_max_erpm_fbrake:      "); debugSerialPort->println(config.l_max_erpm_fbrake);
-  debugSerialPort->print("l_max_erpm_fbrake_cc:        "); debugSerialPort->println(config.l_max_erpm_fbrake_cc);
-  debugSerialPort->print("l_min_vin:    "); debugSerialPort->println(config.l_min_vin);
-  debugSerialPort->print("l_max_vin:    "); debugSerialPort->println(config.l_max_vin);
-  debugSerialPort->print("sl_min_erpm:  "); debugSerialPort->println(config.sl_min_erpm);
-  debugSerialPort->print("sl_min_erpm_cycle_int_limit:    "); debugSerialPort->println(config.sl_min_erpm_cycle_int_limit);
-  //debugSerialPort->print("tachometerAbs:  "); debugSerialPort->println(config.tachometerAbs);
-  //debugSerialPort->print("faultCode:    "); debugSerialPort->println(config.faultCode);
-} */
+void SerialPrint(const mc_configuration& config) 
+{
+  
+  debugSerialPort->print("pwm_mode: "); debugSerialPort->println(config.pwm_mode);
+  debugSerialPort->print("comm_mode: "); debugSerialPort->println(config.comm_mode);
+  debugSerialPort->print("motor_type: "); debugSerialPort->println(config.motor_type);
+  debugSerialPort->print("sensor_mode: "); debugSerialPort->println(config.sensor_mode);
+  
+    
+  debugSerialPort->print("l_current_max: "); debugSerialPort->println(config.l_current_max);
+  debugSerialPort->print("l_current_min: "); debugSerialPort->println(config.l_current_min);
+  debugSerialPort->print("l_in_current_max: "); debugSerialPort->println(config.l_in_current_max);
+  debugSerialPort->print("l_in_current_min: "); debugSerialPort->println(config.l_in_current_min);
+  debugSerialPort->print("l_abs_current_max: "); debugSerialPort->println(config.l_abs_current_max);
+  debugSerialPort->print("l_min_erpm: "); debugSerialPort->println(config.l_min_erpm);
+  debugSerialPort->print("l_max_erpm: "); debugSerialPort->println(config.l_max_erpm);
+  debugSerialPort->print("l_max_erpm_fbrake: "); debugSerialPort->println(config.l_max_erpm_fbrake);
+  debugSerialPort->print("l_max_erpm_fbrake_cc: "); debugSerialPort->println(config.l_max_erpm_fbrake_cc);
+  debugSerialPort->print("l_min_vin: "); debugSerialPort->println(config.l_min_vin);
+  debugSerialPort->print("l_max_vin: "); debugSerialPort->println(config.l_max_vin);
+  debugSerialPort->print("l_battery_cut_start: "); debugSerialPort->println(config.l_battery_cut_start);
+  debugSerialPort->print("l_battery_cut_end:      "); debugSerialPort->println(config.l_battery_cut_end);
+  debugSerialPort->print("l_slow_abs_current:      "); debugSerialPort->println(config.l_slow_abs_current);
+  
+  debugSerialPort->print("l_temp_fet_start:      "); debugSerialPort->println(config.l_temp_fet_start);
+  debugSerialPort->print("l_temp_fet_end:      "); debugSerialPort->println(config.l_temp_fet_end);
+  debugSerialPort->print("l_temp_motor_start:      "); debugSerialPort->println(config.l_temp_motor_start);
+  debugSerialPort->print("l_temp_motor_end:      "); debugSerialPort->println(config.l_temp_motor_end);
+  debugSerialPort->print("l_temp_accel_dec:      "); debugSerialPort->println(config.l_temp_accel_dec);
+  debugSerialPort->print("l_min_duty:      "); debugSerialPort->println(config.l_min_duty);
+  debugSerialPort->print("l_max_duty:      "); debugSerialPort->println(config.l_max_duty);
+  debugSerialPort->print("l_watt_max:      "); debugSerialPort->println(config.l_watt_max);
+  debugSerialPort->print("l_watt_min:      "); debugSerialPort->println(config.l_watt_min);
+  debugSerialPort->print("lo_current_max:      "); debugSerialPort->println(config.lo_current_max);
+  debugSerialPort->print("lo_current_min:      "); debugSerialPort->println(config.lo_current_min);
+  debugSerialPort->print("lo_in_current_max:      "); debugSerialPort->println(config.lo_in_current_max);
+  debugSerialPort->print("lo_in_current_min:      "); debugSerialPort->println(config.lo_in_current_min);
+  debugSerialPort->print("lo_current_motor_max_now:      "); debugSerialPort->println(config.lo_current_motor_max_now);
+  debugSerialPort->print("lo_current_motor_min_now:      "); debugSerialPort->println(config.lo_current_motor_min_now);
+  debugSerialPort->print("sl_min_erpm:      "); debugSerialPort->println(config.sl_min_erpm);
+  debugSerialPort->print("sl_min_erpm_cycle_int_limit:      "); debugSerialPort->println(config.sl_min_erpm_cycle_int_limit);
+  debugSerialPort->print("sl_max_fullbreak_current_dir_change:      "); debugSerialPort->println(config.sl_max_fullbreak_current_dir_change);
+  debugSerialPort->print("sl_cycle_int_limit:      "); debugSerialPort->println(config.sl_cycle_int_limit);
+  debugSerialPort->print("sl_phase_advance_at_br:      "); debugSerialPort->println(config.sl_phase_advance_at_br);
+  debugSerialPort->print("sl_cycle_int_rpm_br:      "); debugSerialPort->println(config.sl_cycle_int_rpm_br);
+  debugSerialPort->print("sl_bemf_coupling_k:      "); debugSerialPort->println(config.sl_bemf_coupling_k);
+  //debugSerialPort->print("hall_table:      "); debugSerialPort->println(config.hall_table);
+  debugSerialPort->print("hall_sl_erpm:      "); debugSerialPort->println(config.hall_sl_erpm);
+  debugSerialPort->print("foc_current_kp:      "); debugSerialPort->println(config.foc_current_kp);
+  debugSerialPort->print("foc_current_ki:      "); debugSerialPort->println(config.foc_current_ki);
+  debugSerialPort->print("foc_f_sw:      "); debugSerialPort->println(config.foc_f_sw);
+  debugSerialPort->print("foc_dt_us:      "); debugSerialPort->println(config.foc_dt_us);
+  debugSerialPort->print("foc_encoder_inverted:      "); debugSerialPort->println(config.foc_encoder_inverted);
+  debugSerialPort->print("foc_encoder_offset:      "); debugSerialPort->println(config.foc_encoder_offset);
+  debugSerialPort->print("foc_encoder_ratio:      "); debugSerialPort->println(config.foc_encoder_ratio);
+  debugSerialPort->print("foc_sensor_mode:      "); debugSerialPort->println(config.foc_sensor_mode);
+  debugSerialPort->print("foc_pll_kp:      "); debugSerialPort->println(config.foc_pll_kp);
+  debugSerialPort->print("foc_pll_ki:      "); debugSerialPort->println(config.foc_pll_ki);
+  debugSerialPort->print("foc_motor_l:      "); debugSerialPort->println(config.foc_motor_l);
+  debugSerialPort->print("foc_motor_r:      "); debugSerialPort->println(config.foc_motor_r);
+  debugSerialPort->print("foc_motor_flux_linkage:      "); debugSerialPort->println(config.foc_motor_flux_linkage);
+  debugSerialPort->print("foc_observer_gain:      "); debugSerialPort->println(config.foc_observer_gain);
+  debugSerialPort->print("foc_observer_gain_slow:      "); debugSerialPort->println(config.foc_observer_gain_slow);
+  debugSerialPort->print("foc_duty_dowmramp_kp:      "); debugSerialPort->println(config.foc_duty_dowmramp_kp);
+  debugSerialPort->print("foc_duty_dowmramp_ki:      "); debugSerialPort->println(config.foc_duty_dowmramp_ki);
+  debugSerialPort->print("foc_openloop_rpm:      "); debugSerialPort->println(config.foc_openloop_rpm);
+  debugSerialPort->print("foc_sl_openloop_hyst:      "); debugSerialPort->println(config.foc_sl_openloop_hyst);
+  debugSerialPort->print("foc_sl_openloop_time:      "); debugSerialPort->println(config.foc_sl_openloop_time);
+  debugSerialPort->print("foc_sl_d_current_duty:      "); debugSerialPort->println(config.foc_sl_d_current_duty);
+  debugSerialPort->print("foc_sl_d_current_factor:      "); debugSerialPort->println(config.foc_sl_d_current_factor);
+  debugSerialPort->print("foc_sl_erpm:      "); debugSerialPort->println(config.foc_sl_erpm);
+  debugSerialPort->print("foc_sample_v0_v7:      "); debugSerialPort->println(config.foc_sample_v0_v7);
+  debugSerialPort->print("foc_sample_high_current:      "); debugSerialPort->println(config.foc_sample_high_current);
+  debugSerialPort->print("foc_sat_comp:      "); debugSerialPort->println(config.foc_sat_comp);
+  debugSerialPort->print("foc_temp_comp:      "); debugSerialPort->println(config.foc_temp_comp);
+  debugSerialPort->print("foc_temp_comp_base_temp:      "); debugSerialPort->println(config.foc_temp_comp_base_temp);
+  debugSerialPort->print("foc_current_filter_const:      "); debugSerialPort->println(config.foc_current_filter_const);
+  debugSerialPort->print("s_pid_kp:      "); debugSerialPort->println(config.s_pid_kp);
+  debugSerialPort->print("s_pid_ki:      "); debugSerialPort->println(config.s_pid_ki);
+  debugSerialPort->print("s_pid_kd:      "); debugSerialPort->println(config.s_pid_kd);
+  debugSerialPort->print("s_pid_kd_filter:      "); debugSerialPort->println(config.s_pid_kd_filter);
+  debugSerialPort->print("s_pid_min_erpm:      "); debugSerialPort->println(config.s_pid_min_erpm);
+  debugSerialPort->print("s_pid_allow_braking:      "); debugSerialPort->println(config.s_pid_allow_braking);
+  debugSerialPort->print("p_pid_kp:      "); debugSerialPort->println(config.p_pid_kp);
+  debugSerialPort->print("p_pid_ki:      "); debugSerialPort->println(config.p_pid_ki);
+  debugSerialPort->print("p_pid_kd:      "); debugSerialPort->println(config.p_pid_kd);
+  debugSerialPort->print("p_pid_kd_filter:      "); debugSerialPort->println(config.p_pid_kd_filter);
+  debugSerialPort->print("p_pid_ang_div:      "); debugSerialPort->println(config.p_pid_ang_div);
+  debugSerialPort->print("cc_startup_boost_duty:      "); debugSerialPort->println(config.cc_startup_boost_duty);
+  debugSerialPort->print("cc_min_current:      "); debugSerialPort->println(config.cc_min_current);
+  debugSerialPort->print("cc_gain:      "); debugSerialPort->println(config.cc_gain);
+  debugSerialPort->print("cc_ramp_step_max:      "); debugSerialPort->println(config.cc_ramp_step_max);
+  debugSerialPort->print("m_fault_stop_time_ms:      "); debugSerialPort->println(config.m_fault_stop_time_ms);
+  debugSerialPort->print("m_duty_ramp_step:      "); debugSerialPort->println(config.m_duty_ramp_step);
+  debugSerialPort->print("m_current_backoff_gain:      "); debugSerialPort->println(config.m_current_backoff_gain);
+  debugSerialPort->print("m_encoder_counts:      "); debugSerialPort->println(config.m_encoder_counts);
+  debugSerialPort->print("m_sensor_port_mode:      "); debugSerialPort->println(config.m_sensor_port_mode);
+  debugSerialPort->print("m_invert_direction:      "); debugSerialPort->println(config.m_invert_direction);
+  debugSerialPort->print("m_drv8301_oc_mode:      "); debugSerialPort->println(config.m_drv8301_oc_mode);
+  debugSerialPort->print("m_drv8301_oc_adj:      "); debugSerialPort->println(config.m_drv8301_oc_adj);
+  debugSerialPort->print("m_bldc_f_sw_min:      "); debugSerialPort->println(config.m_bldc_f_sw_min);
+  debugSerialPort->print("m_bldc_f_sw_max:      "); debugSerialPort->println(config.m_bldc_f_sw_max);
+  debugSerialPort->print("m_dc_f_sw:      "); debugSerialPort->println(config.m_dc_f_sw);
+  debugSerialPort->print("m_ntc_motor_beta:      "); debugSerialPort->println(config.m_ntc_motor_beta);
+  debugSerialPort->print("m_out_aux_mode:      "); debugSerialPort->println(config.m_out_aux_mode);
+}
