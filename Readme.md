@@ -1,5 +1,13 @@
-Trying to implement functions for reading and setting mconfig and later maybe appconfig too. So one can for example adjust the speedlimit or powerlimit without the need of an laptop or smartphone. 
-Won't be able to run on Atmega32p (Arduino Nano / Uno). 
+Trying to implement functions for reading and setting mcconfig and later maybe appconfig too. So one can for example adjust the speedlimit or powerlimit without the need of an laptop or smartphone. 
+Won't be able to run on Atmega32p (Arduino Nano / Uno). Esp8266 works fine. 
+
+Usage: 
+
+VescUartGetMC(mcVal) fills the struct mcVal with the current mc-config. returns 1 if successful, 0 if not.
+
+VescUartGetValue(bldcMeasure) fills the struct bldcMeasure with the current telemetry data. returns 1 if successful, 0 if not.
+
+
 
 
 #VescUartControl library
