@@ -1,4 +1,4 @@
-### Improved VescUartControl library
+## Improved VescUartControl library
 
 Trying to implement functions for reading and setting mcconfig. 
 For example to adjust the max speedlimit or powerlimit 
@@ -17,7 +17,7 @@ current mc-config. returns 1 if successful communication with vesc, 0 if not.
 VescUartGet(bldcMeasure values) fills the struct values with the 
 current telemetry data. returns 1 if successful communication with vesc, 0 if not.
 
-# TODO:
+### TODO:
 - [x] Send COMM_GET_MCCONF request
 - [x] implement ReceiveUartMessage with support of packages bigger 256 bytes (startbyte 3)
 - [x] Receive, unpack and crc-check COMM_GET_MCCONF request
@@ -31,7 +31,7 @@ current telemetry data. returns 1 if successful communication with vesc, 0 if no
 
 
 
-#VescUartControl library
+## VescUartControl library
 
 Library for arduino to interface over UART with the Vesc BLDC controler (http://vedder.se/2015/01/vesc-open-source-esc/)
 It is used in the ArduBoardControl. Refer here: https://github.com/RollingGecko/ArduBoardControler
@@ -53,7 +53,7 @@ the library buffer.c.
 
 The rest should be comment sufficient in the VescUart.h. Take also a look to the RX-Site of the ArduBoardControler (https://github.com/RollingGecko/ArduBoardControler)
 
-##Requirements to use this library on bldc FW
+### Requirements to use this library on bldc FW
 
 The needed changes where already merged by Vedder to the FW. :)
 
@@ -61,7 +61,7 @@ In bldc-tool please activate UART and if needed the nunchuk application.
 
 
 
-##Some details to the UART port used in the VESC
+### Some details to the UART port used in the VESC
 
 It is a uint8_t byte stream. 
 
