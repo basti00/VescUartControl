@@ -66,8 +66,8 @@ uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num) {
   //uint8_t messageReceived[256];
   uint8_t messageReceived[400];
   
-  for(int i = 0; i < 400; i++)
-    messageReceived[i]=0;
+  //for(int i = 0; i < 400; i++)
+  //  messageReceived[i]=0;
   
   uint16_t lenPayload = 0;
   HardwareSerial* serial = serialPort1;
@@ -75,14 +75,31 @@ uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num) {
   REC_State state = REC_IDLE;
   bool longMessage = false;
   
+  int timeout=0;
   while (!serial->available())
-  ;
+  {
+    timeout += 10;
+    delay(10);
+    if(timeout > 2000)
+    {
+      return 0; //Timeout, cant communicate with vesc.
+    }
+  }
+  timeout=0;
 
   bool fertig = false;
   while (!fertig) 
   {
     while (!serial->available())
-    ;
+    {
+      timeout += 10;
+      delay(10);
+      if(timeout > 2000)
+      {
+        return 0; //Timeout, cant communicate with vesc.
+      }
+    }
+    timeout=0;
     
     uint8_t c = serial->read();
     switch(state)
@@ -139,11 +156,9 @@ uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num) {
         if(counter >= endMessage || counter >= 400)
         {
           fertig = true;
-        }
-        
+        }   
       break;
     }
-    
   }  
   
   /*
@@ -575,8 +590,8 @@ bool VescUartGet(bldcMeasure& values, int num) {
   delay(10); //needed, otherwise data is not read
   int lenPayload = ReceiveUartMessage(payload, num);
   if (lenPayload > 1) {
-    bool read = ProcessReadPacket(payload, values, lenPayload); //returns true if sucessful
-    return read;
+    bool return_val = ProcessReadPacket(payload, values, lenPayload); //returns true if sucessful
+    return return_val;
   }
   else
   {
@@ -594,12 +609,12 @@ bool VescUartGet(mc_configuration& config, int num) {
   //delay(10); //needed, otherwise data is not read
   int lenPayload = ReceiveUartMessage(payload, num);/* MC */
   if (lenPayload > 1 && payload[0] == COMM_GET_MCCONF) {
-    bool read = ProcessReadPacket(payload, config, lenPayload); //returns true if sucessful
-    return read;
+    bool return_val = ProcessReadPacket(payload, config, lenPayload); //returns true if sucessful
+    return return_val;
   }
   else
   {
-    return false;
+    return false; //no comm with vesc or too short message got.
   }
 }
 bool VescUartGet(mc_configuration& config) {

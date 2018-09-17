@@ -1,10 +1,12 @@
 /*
  Name:		VescUartSample.ino
  Created:	17/09/2018 14:23:00
- Author:	AC
+ Author:	basti30
 */
 
-// the setup function runs once when you press reset or power the board
+//Example shows how to read the whole mc-config, change a value (l_max_erpm) and write the mc-config back to the vesc. 
+//Made for Vesc 6 in September 2018. Please check if there were changes in the Vesc Firmware.
+
 // To use VescUartControl stand alone you need to define a config.h file, that should contain the Serial or you have to comment the line
 // #include Config.h out in VescUart.h
 
@@ -33,11 +35,10 @@ void setup() {
 	SetDebugSerialPort(&DEBUGSERIAL);
 	DEBUGSERIAL.begin(115200);
 	#endif
-	//DEBUGSERIAL.println("\nSTARTING  ");
 }
 
-bldcMeasure Val;
-mc_configuration mcVal;
+bldcMeasure Val;        //struct for telemetry data
+mc_configuration mcVal; //struct for mc-config data
 	
 // the loop function runs over and over again until power down or reset
 void loop() {
@@ -47,15 +48,15 @@ void loop() {
   
   //Reading mc-config
   if (VescUartGet(mcVal)) {
-    DEBUGSERIAL.println("Successfull read mc-config.");
+    DEBUGSERIAL.println("Successfully read mc-config.");
     SerialPrint(mcVal);
     delay(100);
     
-    mcVal.l_max_erpm = 34444.00;
+    mcVal.l_max_erpm = 34400.00;
 
     if(VescUartSet(mcVal))
     {
-      DEBUGSERIAL.println("Successfull wrote mc-config.");
+      DEBUGSERIAL.println("Successfully wrote mc-config.");
     }
     else
     {
@@ -79,7 +80,6 @@ void loop() {
   }
 	
 }
-
 
 
 
