@@ -3,9 +3,9 @@ Won't be able to run on Atmega32p (Arduino Nano / Uno). Esp8266 works fine.
 
 Usage: 
 
-VescUartGetMC(mcVal) fills the struct mcVal with the current mc-config. returns 1 if successful, 0 if not.
+VescUartGet(mc_configuration mcVal) fills the struct mcVal with the current mc-config. returns 1 if successful communication, 0 if not.
 
-VescUartGetValue(bldcMeasure) fills the struct bldcMeasure with the current telemetry data. returns 1 if successful, 0 if not.
+VescUartGet(bldcMeasure values) fills the struct values with the current telemetry data. returns 1 if successful communication, 0 if not.
 
 
 

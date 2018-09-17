@@ -84,8 +84,8 @@ void SetDebugSerialPort(HardwareSerial* _debugSerialPort);
 
 int PackSendPayload(uint8_t* payload, int lenPay, int num);
 
-int ProcessReadPacket(uint8_t* payload, int lenPay, int num);
-int ProcessReadPacketMC(uint8_t* payload, int lenPay, int num);
+bool ProcessReadPacket(uint8_t* message, bldcMeasure& values,      int len);
+bool ProcessReadPacket(uint8_t* data,    mc_configuration& mcconf, int len);
 
 ///ReceiveUartMessage receives the a message over Serial
 ///Define in a Config.h a SERIAL with the Serial in Arduino Style you want to you
@@ -93,13 +93,13 @@ int ProcessReadPacketMC(uint8_t* payload, int lenPay, int num);
 ///@return the number of bytes receeived within the payload
 
 uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num);
-uint16_t ReceiveUartMessageMC(uint8_t* payloadReceived, int num);
+//uint16_t ReceiveUartMessageMC(uint8_t* payloadReceived, int num);
 
 ///Help Function to print struct bldcMeasure over Serial for Debug
 ///#define DEBUG necessary
 ///Define in a Config.h the DEBUGSERIAL you want to use 
 
-void SerialPrint(const struct bldcMeasure& values);
+void SerialPrint(const bldcMeasure& values);
 void SerialPrint(const mc_configuration& config);
 
 ///Help Function to print uint8_t array over Serial for Debug
@@ -112,11 +112,11 @@ void SerialPrint(uint8_t* data, int len);
 ///@param num as integer with the serial port in use (0=Serial; 1=Serial1; 2=Serial2; 3=Serial3;)
 ///num must not be set, when only one Serial
 //@return true if success
-bool VescUartGetValue(struct bldcMeasure& values, int num);
-bool VescUartGetValue(bldcMeasure& values);
+bool VescUartGet(bldcMeasure& values, int num);
+bool VescUartGet(bldcMeasure& values);
 
-bool VescUartGetMC(mc_configuration& config, int num);
-bool VescUartGetMC(mc_configuration& config);
+bool VescUartGet(mc_configuration& config, int num);
+bool VescUartGet(mc_configuration& config);
 ///Sends a command to VESC to control the motor current
 ///@param current as float with the current for the motor
 ///@param num as integer with the serial port in use (0=Serial; 1=Serial1; 2=Serial2; 3=Serial3;)

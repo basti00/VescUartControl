@@ -2,7 +2,7 @@
 #define LOCAL_DATATYPES_H_
 
 // Added by AC to store measured values
-struct bldcMeasure {
+typedef struct {
 	float tempFetFiltered;
 	float tempMotorFiltered;
 	float avgMotorCurrent;
@@ -19,7 +19,7 @@ struct bldcMeasure {
 	long tachometer;
 	long tachometerAbs;
 	int faultCode;
-};
+} bldcMeasure;
 
 
 //Define remote Package

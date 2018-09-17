@@ -26,7 +26,7 @@ static HardwareSerial* serialPort4;
 static HardwareSerial* debugSerialPort = NULL;
 
 bool UnpackPayload(uint8_t* message, int lenMes, uint8_t* payload, int lenPa);
-bool ProcessReadPacket(uint8_t* message, struct bldcMeasure& values, int len);
+bool ProcessReadPacket(uint8_t* message, bldcMeasure& values, int len);
 
 void SetSerialPort(HardwareSerial*  _serialPort1, HardwareSerial*  _serialPort2, HardwareSerial*  _serialPort3, HardwareSerial*  _serialPort4)
 {
@@ -54,7 +54,7 @@ enum REC_State
 };
 
 //HardwareSerial *serial; ///@param num as integer with the serial port in use (0=Serial; 1=Serial1; 2=Serial2; 3=Serial3;)
-uint16_t ReceiveUartMessageMC(uint8_t* payloadReceived, int num) {
+uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num) {
 
   //Messages <= 255 start with 2. 2nd byte is length
   //Messages >255 start with 3. 2nd and 3rd byte is length combined with 1st >>8 and then &0xFF
@@ -67,7 +67,7 @@ uint16_t ReceiveUartMessageMC(uint8_t* payloadReceived, int num) {
   uint8_t messageReceived[400];
   
   for(int i = 0; i < 400; i++)
-    messageReceived[i]=66;
+    messageReceived[i]=0;
   
   uint16_t lenPayload = 0;
   HardwareSerial* serial = serialPort1;
@@ -171,105 +171,7 @@ uint16_t ReceiveUartMessageMC(uint8_t* payloadReceived, int num) {
   }
 }
 
-uint16_t ReceiveUartMessage(uint8_t* payloadReceived, int num) {
 
-  //Messages <= 255 start with 2. 2nd byte is length
-  //Messages >255 start with 3. 2nd and 3rd byte is length combined with 1st >>8 and then &0xFF
-
-  int counter = 0;
-  //uint16_t endMessage = 256;
-  uint16_t endMessage = 256;
-  bool messageRead = false;
-  //uint8_t messageReceived[256];
-  uint8_t messageReceived[256];
-  uint16_t lenPayload = 0;
-  HardwareSerial* serial;
-  
-
-  switch (num) {
-    case 0:
-      serial = serialPort1;
-      break;
-    case 1:
-      serial = serialPort2;
-      break;
-    case 2:
-      serial = serialPort3;
-      break;
-    case 3:
-      serial = serialPort4;
-      break;
-    default:
-      break;
-
-  }
-
-  while (serial->available()) {
-
-    uint8_t c = serial->read();
-   
-    debugSerialPort->print(String(c));
-    debugSerialPort->print(", ");
-    
-    debugSerialPort->print("counter: ");
-    debugSerialPort->println(counter);
-    
-    messageReceived[counter++] = c;
-    
-    if (counter == 3) 
-    {//case if state of 'counter' with last read 1
-      switch (messageReceived[0])
-      {
-      case 2:
-        endMessage = messageReceived[1] + 5; //Payload size + 2 for sice + 3 for SRC and End.
-        lenPayload = messageReceived[1];
-        break;
-      case 3:
-        debugSerialPort->println("case 3: ");
-        endMessage = messageReceived[1] * 256 + messageReceived[2] + 6; //Payload size + 2 for sice + 3 for SRC and End.
-        lenPayload = messageReceived[1] * 256 + messageReceived[2];
-        debugSerialPort->print(endMessage);
-        debugSerialPort->print(" ");
-        debugSerialPort->println(lenPayload);
-        //ToDo: Add Message Handling > 255 (starting with 3)
-        break;
-      default:
-        debugSerialPort->println("default switch ");
-        break;
-      }
-    }
-    if (counter >= sizeof(messageReceived))
-    {
-      debugSerialPort->println("counter >= sizeof(messageReceived)");
-      break;
-    }
-
-    if (counter == endMessage && messageReceived[endMessage - 1] == 3) {//+1: Because of counter++ state of 'counter' with last read = "endMessage"
-      messageReceived[endMessage] = 0;
-      if (debugSerialPort != NULL) {
-        debugSerialPort->println("End of message reached!");
-      }
-      messageRead = true;
-      break; //Exit if end of message is reached, even if there is still more data in buffer.
-    }
-    
-  }
-  bool unpacked = false;
-  if (messageRead) {
-        debugSerialPort->println("if (messageRead) {");
-    unpacked = UnpackPayload(messageReceived, endMessage, payloadReceived, messageReceived[1]);
-  }
-  if (unpacked)
-  {
-        debugSerialPort->println("if (unpacked) {  Message was read");
-    return lenPayload; //Message was read
-
-  }
-  else {
-    debugSerialPort->println("return 0");
-    return 0; //No Message Read
-  }
-} 
 
 bool UnpackPayload(uint8_t* message, int lenMes, uint8_t* payload, int lenPay)  //FOR ALL MSG
 {
@@ -297,7 +199,7 @@ bool UnpackPayload(uint8_t* message, int lenMes, uint8_t* payload, int lenPay)  
     memcpy(payload, &message[3], lenPayload);
   }
   else 
-    debugSerialPort->print("ERROR");
+    debugSerialPort->print("ERROR: wrong start byte");
   
   crcPayload = crc16(payload, lenPayload);
 
@@ -319,7 +221,6 @@ bool UnpackPayload(uint8_t* message, int lenMes, uint8_t* payload, int lenPay)  
     return false;
   }
 }
-
 
 
 
@@ -383,7 +284,7 @@ if(debugSerialPort!=NULL){
 
 
 
-bool ProcessReadPacket(uint8_t* message, struct bldcMeasure& values, int len) {
+bool ProcessReadPacket(uint8_t* message, bldcMeasure& values, int len) {
   COMM_PACKET_ID packetId;
   int32_t ind = 0;
 
@@ -419,7 +320,7 @@ bool ProcessReadPacket(uint8_t* message, struct bldcMeasure& values, int len) {
   }
 }
 
-bool ProcessReadPacketMC(uint8_t* data, mc_configuration& mcconf, int len) {
+bool ProcessReadPacket(uint8_t* data, mc_configuration& mcconf, int len) {
   COMM_PACKET_ID packetId;
   int32_t ind = 0;
 
@@ -553,7 +454,7 @@ bool ProcessReadPacketMC(uint8_t* data, mc_configuration& mcconf, int len) {
   }
 } 
 
- bool VescUartGetValue(bldcMeasure& values, int num) {
+ bool VescUartGet(bldcMeasure& values, int num) {
   uint8_t command[1] = { COMM_GET_VALUES };
   uint8_t payload[256];
   PackSendPayload(command, 1, num);
@@ -568,18 +469,18 @@ bool ProcessReadPacketMC(uint8_t* data, mc_configuration& mcconf, int len) {
     return false;
   }
 }
-bool VescUartGetValue(bldcMeasure& values) {
-  return VescUartGetValue(values, 0);
+bool VescUartGet(bldcMeasure& values) {
+  return VescUartGet(values, 0);
 } 
 
-bool VescUartGetMC(mc_configuration& config, int num) {
+bool VescUartGet(mc_configuration& config, int num) {
   uint8_t command[1] = { COMM_GET_MCCONF };  //COMM_GET_MCCONF  COMM_GET_VALUES
   uint8_t payload[350];
   PackSendPayload(command, 1, num);
   //delay(10); //needed, otherwise data is not read
-  int lenPayload = ReceiveUartMessageMC(payload, num);/* MC */
+  int lenPayload = ReceiveUartMessage(payload, num);/* MC */
   if (lenPayload > 1) {
-    bool read = ProcessReadPacketMC(payload, config, lenPayload); //returns true if sucessful
+    bool read = ProcessReadPacket(payload, config, lenPayload); //returns true if sucessful
     return read;
   }
   else
@@ -587,8 +488,8 @@ bool VescUartGetMC(mc_configuration& config, int num) {
     return false;
   }
 }
-bool VescUartGetMC(mc_configuration& config) {
-  return VescUartGetMC(config, 0);
+bool VescUartGet(mc_configuration& config) {
+  return VescUartGet(config, 0);
 }
 
 void VescUartSetCurrent(float current, int num) {
@@ -696,7 +597,7 @@ void SerialPrint(uint8_t* data, int len)
 }
 
 
-void SerialPrint(const struct bldcMeasure& values) 
+void SerialPrint(const bldcMeasure& values) 
 {
   debugSerialPort->print("tempFetFiltered:  "); debugSerialPort->println(values.tempFetFiltered);
   debugSerialPort->print("tempMotorFiltered:"); debugSerialPort->println(values.tempMotorFiltered);
