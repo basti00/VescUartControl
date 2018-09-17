@@ -1,11 +1,32 @@
-Trying to implement functions for reading and setting mcconfig and later maybe appconfig too. So one can for example adjust the speedlimit or powerlimit without the need of an laptop or smartphone. 
-Won't be able to run on Atmega32p (Arduino Nano / Uno). Esp8266 works fine. 
+### Improved VescUartControl library
+
+Trying to implement functions for reading and setting mcconfig. 
+For example to adjust the max speedlimit or powerlimit 
+with the help of a small mcu (esp8266 etc.) without the need of 
+an laptop or smartphone. 
+Can be used to change of motor profiles via wifi.
+
+Won't be able to run on Atmega32p (Arduino Nano / Uno 2k is to little memory) 
+Esp8266 with its 64kB works fine. 
 
 Usage: 
 
-VescUartGet(mc_configuration mcVal) fills the struct mcVal with the current mc-config. returns 1 if successful communication, 0 if not.
+VescUartGet(mc_configuration mcVal) fills the struct mcVal with the 
+current mc-config. returns 1 if successful communication with vesc, 0 if not.
 
-VescUartGet(bldcMeasure values) fills the struct values with the current telemetry data. returns 1 if successful communication, 0 if not.
+VescUartGet(bldcMeasure values) fills the struct values with the 
+current telemetry data. returns 1 if successful communication with vesc, 0 if not.
+
+# TODO:
+- [x] Send COMM_GET_MCCONF request
+- [x] implement ReceiveUartMessage with support of packages bigger 256 bytes (startbyte 3)
+- [x] Receive, unpack and crc-check COMM_GET_MCCONF request
+- [x] implement ProcessReadPacket function to fill mc_configuration struct with all values.
+- [x] SerialPrint function to display mc-config values
+- [ ] Pack mc-config values into a COMM_SET_MCCONF package.
+- [ ] Send to vesc and hope it toes not get bricked.. again.
+- [ ] ???
+- [ ] profit!
 
 
 
