@@ -1,6 +1,7 @@
 ## Improved VescUartControl library
 
-Trying to implement functions for reading and setting mcconfig. 
+Added functions to RollingGeckos library 
+for reading and setting mcconfig. 
 For example to adjust the max speedlimit or powerlimit 
 with the help of a small mcu (esp8266 etc.) without the need of 
 an laptop or smartphone. 
@@ -13,6 +14,9 @@ Usage:
 
 VescUartGet(mc_configuration mcVal) fills the struct mcVal with the 
 current mc-config. returns 1 if successful communication with vesc, 0 if not.
+
+VescUartSet(mc_configuration mcVal) write the struct mcVal to the vesc. 
+returns 1 if successful communication with vesc, 0 if not.
 
 VescUartGet(bldcMeasure values) fills the struct values with the 
 current telemetry data. returns 1 if successful communication with vesc, 0 if not.
