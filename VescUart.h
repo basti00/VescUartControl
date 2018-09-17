@@ -117,6 +117,9 @@ bool VescUartGet(bldcMeasure& values);
 
 bool VescUartGet(mc_configuration& config, int num);
 bool VescUartGet(mc_configuration& config);
+
+bool VescUartSet(mc_configuration& config, int num);
+bool VescUartSet(mc_configuration& config);
 ///Sends a command to VESC to control the motor current
 ///@param current as float with the current for the motor
 ///@param num as integer with the serial port in use (0=Serial; 1=Serial1; 2=Serial2; 3=Serial3;)

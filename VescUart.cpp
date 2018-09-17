@@ -227,7 +227,7 @@ bool UnpackPayload(uint8_t* message, int lenMes, uint8_t* payload, int lenPay)  
 int PackSendPayload(uint8_t* payload, int lenPay, int num) {
   uint16_t crcPayload = crc16(payload, lenPay);
   int count = 0;
-  uint8_t messageSend[256];
+  uint8_t messageSend[400];
 
   if (lenPay <= 256)
   {
@@ -274,6 +274,7 @@ if(debugSerialPort!=NULL){
   }
 
   //Sending package
+  
   serial->write(messageSend, count);
 
 
@@ -283,6 +284,119 @@ if(debugSerialPort!=NULL){
 
 
 
+int BuildPacket(uint8_t* send_buffer, mc_configuration& mcconf)
+{
+  int32_t ind = 0;
+
+  send_buffer[ind++] = COMM_SET_MCCONF;  /////////////////////////////////////////////////////////////////////////Cahnge BACK
+  send_buffer[ind++] = mcconf.pwm_mode;
+  send_buffer[ind++] = mcconf.comm_mode;
+  send_buffer[ind++] = mcconf.motor_type;
+  send_buffer[ind++] = mcconf.sensor_mode;
+
+  buffer_append_float32_auto(send_buffer, mcconf.l_current_max, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_current_min, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_in_current_max, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_in_current_min, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_abs_current_max, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_min_erpm, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_max_erpm, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_erpm_start, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_max_erpm_fbrake, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_max_erpm_fbrake_cc, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_min_vin, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_max_vin, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_battery_cut_start, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_battery_cut_end, &ind);
+  send_buffer[ind++] = mcconf.l_slow_abs_current;
+  buffer_append_float32_auto(send_buffer, mcconf.l_temp_fet_start, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_temp_fet_end, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_temp_motor_start, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_temp_motor_end, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_temp_accel_dec, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_min_duty, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_max_duty, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_watt_max, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.l_watt_min, &ind);
+
+  buffer_append_float32_auto(send_buffer, mcconf.sl_min_erpm, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.sl_min_erpm_cycle_int_limit, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.sl_max_fullbreak_current_dir_change, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.sl_cycle_int_limit, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.sl_phase_advance_at_br, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.sl_cycle_int_rpm_br, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.sl_bemf_coupling_k, &ind);
+
+  memcpy(send_buffer + ind, mcconf.hall_table, 8);
+  ind += 8;
+  buffer_append_float32_auto(send_buffer, mcconf.hall_sl_erpm, &ind);
+
+  buffer_append_float32_auto(send_buffer, mcconf.foc_current_kp, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_current_ki, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_f_sw, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_dt_us, &ind);
+  send_buffer[ind++] = mcconf.foc_encoder_inverted;
+  buffer_append_float32_auto(send_buffer, mcconf.foc_encoder_offset, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_encoder_ratio, &ind);
+  send_buffer[ind++] = mcconf.foc_sensor_mode;
+  buffer_append_float32_auto(send_buffer, mcconf.foc_pll_kp, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_pll_ki, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_motor_l, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_motor_r, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_motor_flux_linkage, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_observer_gain, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_observer_gain_slow, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_duty_dowmramp_kp, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_duty_dowmramp_ki, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_openloop_rpm, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_sl_openloop_hyst, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_sl_openloop_time, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_sl_d_current_duty, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_sl_d_current_factor, &ind);
+  memcpy(send_buffer + ind, mcconf.foc_hall_table, 8);
+  ind += 8;
+  buffer_append_float32_auto(send_buffer, mcconf.foc_sl_erpm, &ind);
+  send_buffer[ind++] = mcconf.foc_sample_v0_v7;
+  send_buffer[ind++] = mcconf.foc_sample_high_current;
+  buffer_append_float32_auto(send_buffer, mcconf.foc_sat_comp, &ind);
+  send_buffer[ind++] = mcconf.foc_temp_comp;
+  buffer_append_float32_auto(send_buffer, mcconf.foc_temp_comp_base_temp, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.foc_current_filter_const, &ind);
+
+  buffer_append_float32_auto(send_buffer, mcconf.s_pid_kp, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.s_pid_ki, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.s_pid_kd, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.s_pid_kd_filter, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.s_pid_min_erpm, &ind);
+  send_buffer[ind++] = mcconf.s_pid_allow_braking;
+
+  buffer_append_float32_auto(send_buffer, mcconf.p_pid_kp, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.p_pid_ki, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.p_pid_kd, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.p_pid_kd_filter, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.p_pid_ang_div, &ind);
+
+  buffer_append_float32_auto(send_buffer, mcconf.cc_startup_boost_duty, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.cc_min_current, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.cc_gain, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.cc_ramp_step_max, &ind);
+
+  buffer_append_int32(send_buffer, mcconf.m_fault_stop_time_ms, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.m_duty_ramp_step, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.m_current_backoff_gain, &ind);
+  buffer_append_uint32(send_buffer, mcconf.m_encoder_counts, &ind);
+  send_buffer[ind++] = mcconf.m_sensor_port_mode;
+  send_buffer[ind++] = mcconf.m_invert_direction;
+  send_buffer[ind++] = mcconf.m_drv8301_oc_mode;
+  send_buffer[ind++] = mcconf.m_drv8301_oc_adj;
+  buffer_append_float32_auto(send_buffer, mcconf.m_bldc_f_sw_min, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.m_bldc_f_sw_max, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.m_dc_f_sw, &ind);
+  buffer_append_float32_auto(send_buffer, mcconf.m_ntc_motor_beta, &ind);
+  send_buffer[ind] = mcconf.m_out_aux_mode;  //no ++ here
+
+  return ind;
+}
 
 bool ProcessReadPacket(uint8_t* message, bldcMeasure& values, int len) {
   COMM_PACKET_ID packetId;
@@ -454,7 +568,7 @@ bool ProcessReadPacket(uint8_t* data, mc_configuration& mcconf, int len) {
   }
 } 
 
- bool VescUartGet(bldcMeasure& values, int num) {
+bool VescUartGet(bldcMeasure& values, int num) {
   uint8_t command[1] = { COMM_GET_VALUES };
   uint8_t payload[256];
   PackSendPayload(command, 1, num);
@@ -475,11 +589,11 @@ bool VescUartGet(bldcMeasure& values) {
 
 bool VescUartGet(mc_configuration& config, int num) {
   uint8_t command[1] = { COMM_GET_MCCONF };  //COMM_GET_MCCONF  COMM_GET_VALUES
-  uint8_t payload[350];
+  uint8_t payload[400];
   PackSendPayload(command, 1, num);
   //delay(10); //needed, otherwise data is not read
   int lenPayload = ReceiveUartMessage(payload, num);/* MC */
-  if (lenPayload > 1) {
+  if (lenPayload > 1 && payload[0] == COMM_GET_MCCONF) {
     bool read = ProcessReadPacket(payload, config, lenPayload); //returns true if sucessful
     return read;
   }
@@ -490,6 +604,40 @@ bool VescUartGet(mc_configuration& config, int num) {
 }
 bool VescUartGet(mc_configuration& config) {
   return VescUartGet(config, 0);
+}
+
+bool VescUartSet(mc_configuration& config, int num) {
+  
+  uint8_t payload[360]; //= {3, 1, 84, 14, 1, 0, 2, 2, 66, 92, 0, 0, 194, 72, 0, 0, 66, 180, 0, 0, 194, 32, 0, 0, 67, 22, 0, 0, 199, 195, 80, 0, 71, 5, 252, 0, 63, 76, 204, 205, 67, 150, 0, 0, 68, 187, 128, 0, 65, 0, 0, 0, 66, 100, 0, 0, 66, 35, 51, 51, 66, 20, 204, 205, 1, 66, 170, 0, 0, 66, 200, 0, 0, 66, 170, 0, 0, 66, 200, 0, 0, 62, 25, 153, 154, 59, 163, 215, 10, 63, 115, 51, 51, 70, 106, 96, 0, 198, 106, 96, 0, 67, 22, 0, 0, 68, 137, 128, 0, 65, 32, 0, 0, 66, 120, 0, 0, 63, 76, 204, 205, 71, 156, 64, 0, 68, 22, 0, 0, 255, 1, 3, 2, 5, 6, 4, 255, 68, 250, 0, 0, 61, 35, 215, 10, 66, 4, 225, 72, 70, 156, 64, 0, 61, 163, 215, 10, 0, 67, 52, 0, 0, 64, 224, 0, 0, 2, 68, 250, 0, 0, 71, 28, 64, 0, 56, 39, 143, 252, 61, 7, 252, 185, 60, 133, 37, 3, 74, 103, 82, 192, 62, 153, 153, 154, 65, 32, 0, 0, 67, 72, 0, 0, 67, 200, 0, 0, 61, 204, 204, 205, 61, 204, 204, 205, 0, 0, 0, 0, 0, 0, 0, 0, 255, 95, 27, 62, 163, 127, 195, 255, 69, 28, 64, 0, 1, 0, 0, 0, 0, 0, 0, 65, 200, 0, 0, 61, 204, 204, 205, 59, 131, 18, 111, 59, 131, 18, 111, 56, 209, 183, 23, 62, 76, 204, 205, 68, 97, 0, 0, 1, 60, 245, 194, 143, 0, 0, 0, 0, 57, 209, 183, 23, 62, 76, 204, 205, 63, 128, 0, 0, 60, 35, 215, 10, 61, 204, 204, 205, 59, 150, 187, 153, 61, 35, 215, 10, 0, 0, 1, 244, 60, 163, 215, 10, 63, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 16, 69, 59, 128, 0, 71, 28, 64, 0, 71, 8, 184, 0, 69, 83, 64, 0, 93, 32, 3, 0 };
+  //debugSerialPort->print("comp  ");
+  //SerialPrint(payload, 360);
+  
+  for(int i = 0; i<360; i++)
+  {
+    payload[i] = 66;
+  }
+  
+  int lenPayload = BuildPacket(payload, config);
+  //should be 340 debugSerialPort->print("lenPayload");debugSerialPort->println(lenPayload);
+  //debugSerialPort->print("self build      ");
+  //SerialPrint(payload, lenPayload);
+  
+  int ret_pack = PackSendPayload(payload, lenPayload, num);
+  
+  debugSerialPort->println("Packed and sent!");
+  
+  lenPayload = ReceiveUartMessage(payload, num);
+  if (lenPayload > 1 || lenPayload == 0 || payload[0] != 13) {
+    //wrong answer from Vesc. should be lenPayload = 1 and payload[0] == 13 (COMM_SET_MCCONF)
+    return false;
+  }
+  else
+  {
+    return true; //setting of mc-config was sucessful
+  }
+}
+bool VescUartSet(mc_configuration& config) {
+  return VescUartSet(config, 0);
 }
 
 void VescUartSetCurrent(float current, int num) {
@@ -508,7 +656,7 @@ void VescUartSetPosition(float position, int num) {
   int32_t index = 0;
   uint8_t payload[5];
 
-  payload[index++] = COMM_SET_POS ;
+  payload[index++] = COMM_SET_POS;
   buffer_append_int32(payload, (int32_t)(position * 1000000.0), &index);
   PackSendPayload(payload, 5, num);
 }
@@ -591,7 +739,7 @@ void SerialPrint(uint8_t* data, int len)
   for (int i = 0; i <= len; i++)
   {
     debugSerialPort->print(data[i]);
-    debugSerialPort->print(" ");
+    debugSerialPort->print(", ");
   }
   debugSerialPort->println("");
 }
