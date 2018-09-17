@@ -1,7 +1,11 @@
 ## Improved VescUartControl library
 
+Disclaimer: Not very well tested yet. 
+May have Bugs. Can in worst case brick your Vesc. Use on your on risk.
+
 Added functions to RollingGeckos library 
 for reading and setting mcconfig. 
+
 For example to adjust the max speedlimit or powerlimit 
 with the help of a small mcu (esp8266 etc.) without the need of 
 an laptop or smartphone. 
@@ -9,6 +13,8 @@ Can be used to change of motor profiles via wifi.
 
 Won't be able to run on Atmega32p (Arduino Nano / Uno 2k is to little memory) 
 Esp8266 with its 64kB works fine. 
+
+Example "VescUartSample.ino" got tested on my Vesc6 and works fine.
 
 Usage: 
 
