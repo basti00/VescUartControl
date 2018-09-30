@@ -1,15 +1,14 @@
 ## Improved VescUartControl library
 
-Disclaimer: Not very well tested yet. 
-May have Bugs. Can in worst case brick your Vesc. Use on your on risk.
+Disclaimer: For Vesc6. Not very well tested yet and rough around the edges. Works for me but may have Bugs. Use on your on risk.
 
 Added functions to RollingGeckos library 
-for reading and setting mcconfig. 
+for reading and setting the mcconfig via UART. 
 
 For example to adjust the max speedlimit or powerlimit 
 with the help of a small mcu (esp8266 etc.) without the need of 
 an laptop or smartphone. 
-Can be used to change of motor profiles via wifi.
+Can be used to change of motor profile via wifi.
 
 Won't be able to run on Atmega32p (Arduino Nano / Uno 2k is to little memory) 
 Esp8266 with its 64kB works fine. 
@@ -25,19 +24,7 @@ VescUartSet(mc_configuration mcVal) write the struct mcVal to the vesc.
 returns 1 if successful communication with vesc, 0 if not.
 
 VescUartGet(bldcMeasure values) fills the struct values with the 
-current telemetry data. returns 1 if successful communication with vesc, 0 if not.
-
-### TODO:
-- [x] Send COMM_GET_MCCONF request
-- [x] implement ReceiveUartMessage with support of packages bigger 256 bytes (startbyte 3)
-- [x] Receive, unpack and crc-check COMM_GET_MCCONF request
-- [x] implement ProcessReadPacket function to fill mc_configuration struct with all values.
-- [x] SerialPrint function to display mc-config values
-- [ ] Pack mc-config values into a COMM_SET_MCCONF package.
-- [ ] Send to vesc and hope it toes not get bricked.. again.
-- [ ] ???
-- [ ] profit!
-
+current telemetry data like before. returns 1 if successful communication with vesc, 0 if not.
 
 
 
