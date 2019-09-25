@@ -2,7 +2,7 @@
 
 Added functions to RollingGeckos library for reading and setting the mcconfig via UART. Works with Vesc Version 3.41.
 
-# !! Not more neccesary for vesc firmware version after 3.41, since Vedder added dedicated commandc to change specific values of the mcconfig now just use RollingGeckos library with the commands COMM_GET_VALUES_SELECTIVE and COMM_GET_VALUES_SETUP_SELECTIVE !!
+### !! Not more neccesary for vesc firmware version after 3.41, since Vedder added dedicated commandc to change specific values of the mcconfig now just use RollingGeckos library with the commands COMM_GET_VALUES_SELECTIVE and COMM_GET_VALUES_SETUP_SELECTIVE !!
 
 For example to adjust the max speedlimit or powerlimit 
 with the help of a small mcu (ESP8266 etc.)
