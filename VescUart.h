@@ -22,6 +22,11 @@ along with this program.If not, see <http://www.gnu.org/licenses/>.
 
 //#include <Config.h>
 #include <HardwareSerial.h>
+#include "mcconf_default.h"
+
+// Constants
+#define MCCONF_SIGNATURE		4198816514
+#define APPCONF_SIGNATURE		486554156
 
 void SetSerialPort(HardwareSerial* _serialPort1, HardwareSerial* _serialPort2, HardwareSerial* _serialPort3, HardwareSerial* _serialPort4);
 void SetSerialPort(HardwareSerial* _serialPort);
@@ -167,5 +172,9 @@ void VescUartSetDuty(float duty) ;
 
 void VescUartSetRPM(float rpm, int num);
 void VescUartSetRPM(float rpm);
+
+void Serial0Print(const mc_configuration& config);
+void SerialPrint0(uint8_t* data, int len);
+void confgenerator_set_defaults_mcconf(mc_configuration *conf);
 
 #endif
